@@ -23,7 +23,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true })); // For URL-encod
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", // Frontend URL
+    origin: process.env.NODE_ENV === "production" ? "https://your-frontend-url.com" : "http://localhost:5173", // Update with your production URL
     credentials: true,
   })
 );
@@ -34,10 +34,12 @@ app.use("/api/messages", messageRoutes);
 
 // Static file serving for production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  // Serve static files from the 'dist' directory (Frontend build folder)
+  app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
+  // Send index.html for any route that isn't already handled
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
   });
 }
 
